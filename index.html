@@ -60,6 +60,7 @@ textarea,input.t{width:100%;padding:10px;border:1px solid #c8cfdd;border-radius:
 <div id="card"></div><div id="msg"></div>
 <div id="kb"><div><h2>כניסה ראשונה</h2><p>הדבק את מפתח הגישה (פעם אחת בלבד, הוא נשמר בטלפון הזה).</p><input id="kin" type="password" autocomplete="off" placeholder="מפתח גישה"><button onclick="saveKey()">כניסה</button></div></div>
 <script>
+var FUT='לטיפול עתידי';
 var K='',DATA=[],STAGES=[],FIL='all',CUR=null,SEL='';
 var API='https://script.google.com/macros/s/AKfycbzDsbFWeJ9opSMMaPy-K7hVLF-9XOhlFLHZI7U3x9Bl7DsueFyR_3tODHnPlXYvmkP8/exec';
 function api(action,args){return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({api:action,k:K,args:args||[]})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){if(j.error==='אין גישה'){forgetKey()}throw new Error(j.error||'שגיאה')}return j.data})}
@@ -136,15 +137,17 @@ function showCard(c){
   if(c.notes)h+='<div class="box"><h3>היסטוריית הערות</h3><div class="big">'+esc(c.notes)+'</div></div>';
   h+='<div class="box"><h3>שם</h3><div style="display:flex;gap:8px"><input class="t" id="fn" placeholder="שם פרטי" value="'+esc(c.fn)+'"><input class="t" id="ln" placeholder="שם משפחה" value="'+esc(c.ln)+'"></div></div>';
   h+='<div class="box"><h3>שינוי שלב</h3><div class="stg" id="stg">'+STAGES.map(function(s,i){return '<button data-i="'+i+'" class="'+(s===c.st?'on':'')+'" onclick="pick('+i+')">'+esc(s)+'</button>'}).join('')+'</div></div>';
+  var iso='';var mm=String(c.dm||'').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(mm)iso=mm[3]+'-'+mm[2]+'-'+mm[1];
+  h+='<div class="box" id="ddb" style="'+(c.st===FUT?'':'display:none')+'"><h3>לחזור לליד בתאריך</h3><input class="t" type="date" id="dd" value="'+iso+'"></div>';
   h+='<div class="box"><h3>הערה חדשה</h3><textarea id="note" rows="3" placeholder="מה קרה בשיחה"></textarea></div>';
   h+='<div class="box"><h3>מה לעשות (הוראה ידנית, גוברת על ברירת המחדל)</h3><input class="t" id="man" value="'+esc(c.man)+'"></div>';
   h+='<div id="save"><button id="sb" onclick="save()">שמור</button></div>';
   $('card').innerHTML=h;$('card').scrollTop=0;
 }
-function pick(i){SEL=STAGES[i];var b=document.querySelectorAll('#stg button');for(var j=0;j<b.length;j++)b[j].className=(j===i?'on':'')}
+function pick(i){SEL=STAGES[i];var db=$('ddb');if(db)db.style.display=(SEL===FUT?'block':'none');var b=document.querySelectorAll('#stg button');for(var j=0;j<b.length;j++)b[j].className=(j===i?'on':'')}
 function save(){
   if(!CUR)return;var b=$('sb');b.disabled=true;b.textContent='שומר...';
-  api('save',[CUR.r,SEL,$('note').value,$('man').value,$('fn').value,$('ln').value]).then(function(c){
+  api('save',[CUR.r,SEL,$('note').value,$('man').value,$('fn').value,$('ln').value,SEL===FUT?($('dd')?$('dd').value:''):'']).then(function(c){
     for(var i=0;i<DATA.length;i++){if(DATA[i].r===c.r){DATA[i].n=c.n;DATA[i].st=c.st;DATA[i].ball=c.ball;DATA[i].d=c.d;DATA[i].ts=c.ts;DATA[i].nx=c.nx;break}}
     toast('נשמר');closeCard();render();
   }).catch(function(e){b.disabled=false;b.textContent='שמור';toast('לא נשמר: '+(e&&e.message||e))});
