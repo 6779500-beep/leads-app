@@ -14,7 +14,8 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#F2F4F8;color:#1
 #top{position:sticky;top:0;z-index:5;background:#1F3864;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 12px 8px}
 #top h1{margin:0 0 8px;font-size:18px;display:flex;justify-content:space-between;align-items:center}
 #top button.r{background:#2f4f8a;color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:13px}
-#q{width:100%;padding:11px 12px;border-radius:10px;border:0;font-size:16px;margin-bottom:8px}
+#q::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+#q{width:100%;padding:11px 12px 11px 44px;border-radius:10px;border:0;font-size:16px;margin-bottom:8px}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chip{flex:none;padding:7px 12px;border-radius:18px;background:#2f4f8a;color:#fff;font-size:14px;border:0}
 .chip.on{background:#fff;color:#1F3864;font-weight:bold}
@@ -53,7 +54,7 @@ textarea,input.t{width:100%;padding:10px;border:1px solid #c8cfdd;border-radius:
 #kb{position:fixed;inset:0;background:#1F3864;z-index:50;display:none;align-items:center;justify-content:center;padding:24px}#kb div{background:#fff;border-radius:16px;padding:20px;max-width:420px;width:100%}#kb h2{margin:0 0 8px;font-size:20px}#kb p{margin:0 0 12px;color:#5b6475;font-size:14px;line-height:1.4}#kb input{width:100%;padding:12px;border:1px solid #c8cfdd;border-radius:10px;font-size:16px;margin-bottom:10px}#kb button{width:100%;padding:13px;border:0;border-radius:12px;background:#1F3864;color:#fff;font-size:16px;font-weight:bold}</style></head><body>
 <div id="top"><h1><span>לידים <small id="ver" style="font-size:11px;font-weight:normal;opacity:.7"></small></span><button class="r" id="rb" onclick="load(false)">רענון</button></h1>
 <div id="upd" style="display:none;background:#ffe9a8;color:#5b4300;padding:9px 10px;border-radius:10px;margin-bottom:8px;font-size:14px">יש גרסה חדשה של הכלי. <button onclick="newVer()" style="margin-right:6px;padding:5px 10px;border:0;border-radius:8px;background:#1F3864;color:#fff">טען מחדש</button></div>
-<input id="q" type="search" placeholder="שם, טלפון או נציגה" oninput="render()">
+<div style="position:relative"><input id="q" type="search" placeholder="שם, טלפון או נציגה" oninput="qx();render()"><button id="qc" onclick="clearQ()" aria-label="נקה" style="display:none;position:absolute;left:6px;top:4px;width:34px;height:34px;border:0;border-radius:17px;background:#d5dae5;color:#33405a;font-size:20px;line-height:1">×</button></div>
 <div class="chips" id="chips"></div>
 <select id="rep" onchange="render()"><option value="">כל הנציגים</option></select></div>
 <div id="cnt"></div><div id="list"></div>
@@ -144,6 +145,8 @@ function showCard(c){
   h+='<div id="save"><button id="sb" onclick="save()">שמור</button></div>';
   $('card').innerHTML=h;$('card').scrollTop=0;
 }
+function qx(){$('qc').style.display=$('q').value?'block':'none'}
+function clearQ(){$('q').value='';qx();render();$('q').focus()}
 function pick(i){SEL=STAGES[i];var db=$('ddb');if(db)db.style.display=(SEL===FUT?'block':'none');var b=document.querySelectorAll('#stg button');for(var j=0;j<b.length;j++)b[j].className=(j===i?'on':'')}
 function save(){
   if(!CUR)return;var b=$('sb');b.disabled=true;b.textContent='שומר...';
