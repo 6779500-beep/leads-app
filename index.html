@@ -129,7 +129,7 @@ function showCard(c){
   CUR=c;SEL=c.st;
   var h='<div class="hd"><button onclick="closeCard()">חזרה</button><b>'+esc(c.n||c.p)+'</b><span></span></div>';
   h+='<div class="act"><a class="call" href="tel:'+digits(c.p)+'">התקשר</a><a class="wa" href="'+wa(c.p)+'" target="_blank">וואטסאפ</a>'+(c.p2?'<a class="call2" href="tel:'+digits(c.p2)+'">מספר שני<br><small>'+esc(c.p2)+'</small></a>':'')+'</div>';
-  h+='<div class="box"><h3>מצב</h3>'+kv('שלב',c.st)+kv('נציגה',c.rep)+kv('בעל הכדור',c.ball)+kv('עודכן',c.upd)+kv('ימים בשלב',c.d)+kv('מצב זמן',c.ts)+kv('יעד טיפול',c.due)+'</div>';
+  h+='<div class="box"><h3>מצב</h3>'+kv('שלב',c.st)+kv('נציגה',c.rep||'לא צוין')+kv('הגיע אליך',c.arr||'לא צוין')+kv('בעל הכדור',c.ball)+kv('עודכן',c.upd)+kv('ימים בשלב',c.d)+kv('מצב זמן',c.ts)+kv('יעד טיפול',c.due)+'</div>';
   if(c.nx||c.det)h+='<div class="box"><h3>פעולה הבאה</h3><div class="big">'+esc(c.nx)+(c.det?'\n'+esc(c.det):'')+'</div></div>';
   h+='<div class="box"><h3>בקשה / רקע</h3><div class="big">'+esc(c.req||'אין')+'</div></div>';
   h+='<div class="box"><h3>פרטים</h3>'+kv('טלפון',c.p)+kv('טלפון נוסף',c.p2)+kv('ת.ז.',c.id)+kv('עיר / סניף',c.city)+kv('קופה נוכחית',c.kupa)+kv('נפשות',c.ppl)+'</div>';
