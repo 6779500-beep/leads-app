@@ -173,8 +173,19 @@ function showCard(c){
   h+='<div class="box" id="ddb" style="'+(c.st===FUT?'':'display:none')+'"><h3>לחזור לליד בתאריך</h3><input class="t" type="date" id="dd" value="'+iso+'"></div>';
   h+='<div class="box"><h3>הערה חדשה</h3><textarea id="note" rows="3" placeholder="מה קרה בשיחה"></textarea></div>';
   h+='<div class="box"><h3>מה לעשות (הוראה ידנית, גוברת על ברירת המחדל)</h3><input class="t" id="man" value="'+esc(c.man)+'"></div>';
+  h+='<div class="box"><h3>שלח לנציגה'+(c.rep?' ('+esc(c.rep)+')':'')+'</h3><div style="display:flex;gap:8px"><input class="t" id="tk" placeholder="משימה לנציגה (לא חובה)"><input class="t" type="date" id="tkd" style="max-width:150px"></div><div class="stg" style="margin-top:8px"><button onclick="sendRep()">פתח וואטסאפ עם הודעה מוכנה</button></div></div>';
   h+='<div id="save"><button id="sb" onclick="save()">שמור</button></div>';
   $('card').innerHTML=h;$('card').scrollTop=0;
+}
+function sendRep(){
+  if(!CUR)return;var c=CUR,nt=($('note')&&$('note').value||'').trim(),tk=($('tk')&&$('tk').value||'').trim(),td=($('tkd')&&$('tkd').value||'');
+  var L=['עדכון על '+(c.n||c.p)+' ('+c.p+')','שלב: '+(SEL||c.st)];
+  if(nt)L.push('מה היה בשיחה: '+nt);
+  var m=($('man')&&$('man').value||'').trim();if(m)L.push('הצעד הבא: '+m);
+  if(tk){var dd=td?td.split('-').reverse().join('.'):'';L.push('משימה: '+tk+(dd?' עד '+dd:''))}
+  L.push('וואטסאפ ללקוח: '+wa(c.p));
+  if(tk&&$('man')&&!$('man').value)$('man').value=tk+(td?' ('+td.split('-').reverse().join('.')+')':'');
+  window.open('https://wa.me/?text='+encodeURIComponent(L.join(String.fromCharCode(10))),'_blank');
 }
 function qx(){$('qc').style.display=$('q').value?'block':'none'}
 function clearQ(){$('q').value='';qx();render();$('q').focus()}
