@@ -85,7 +85,7 @@ function load(silent){
     if(!silent)toast('עודכן '+hm()+' · '+DATA.length+' לידים');
   }).catch(function(e){b.disabled=false;b.textContent='רענון';$('cnt').textContent='שגיאה: '+(e&&e.message||e);toast('הרענון נכשל')});
 }
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&LAST&&Date.now()-LAST>60000&&!CUR)load(true)});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&LAST&&Date.now()-LAST>600000&&!CUR&&!$('q').value)load(true)});
 function fillReps(){
   var s={},o=[];DATA.forEach(function(x){if(x.rep&&!s[x.rep]){s[x.rep]=1;o.push(x.rep)}});o.sort();
   var el=$('rep'),cur=el.value;el.innerHTML='<option value="">כל הנציגים</option>'+o.map(function(r){return '<option>'+esc(r)+'</option>'}).join('');el.value=cur;
