@@ -52,7 +52,7 @@ textarea,input.t{width:100%;padding:10px;border:1px solid #c8cfdd;border-radius:
 #msg{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:15px;z-index:20;display:none}
 .empty{padding:30px;text-align:center;color:#6b7691}
 #kb{position:fixed;inset:0;background:#1F3864;z-index:50;display:none;align-items:center;justify-content:center;padding:24px}#kb div{background:#fff;border-radius:16px;padding:20px;max-width:420px;width:100%}#kb h2{margin:0 0 8px;font-size:20px}#kb p{margin:0 0 12px;color:#5b6475;font-size:14px;line-height:1.4}#kb input{width:100%;padding:12px;border:1px solid #c8cfdd;border-radius:10px;font-size:16px;margin-bottom:10px}#kb button{width:100%;padding:13px;border:0;border-radius:12px;background:#1F3864;color:#fff;font-size:16px;font-weight:bold}</style></head><body>
-<div id="top"><h1><span>לידים <small id="ver" style="font-size:11px;font-weight:normal;opacity:.7"></small></span><span><button class="r" onclick="newLead()">+ חדש</button> <button class="r" id="rb" onclick="load(false)">רענון</button></span></h1>
+<div id="top"><h1><span>לידים <small id="ver" style="font-size:11px;font-weight:normal;opacity:.7"></small></span><span><button class="r" onclick="showSummary()">סיכום</button> <button class="r" onclick="newLead()">+ חדש</button> <button class="r" id="rb" onclick="load(false)">רענון</button></span></h1>
 <div id="upd" style="display:none;background:#ffe9a8;color:#5b4300;padding:9px 10px;border-radius:10px;margin-bottom:8px;font-size:14px">יש גרסה חדשה של הכלי. <button onclick="newVer()" style="margin-right:6px;padding:5px 10px;border:0;border-radius:8px;background:#1F3864;color:#fff">טען מחדש</button></div>
 <div style="position:relative"><input id="q" type="search" placeholder="שם, טלפון או נציגה" oninput="qx();render()"><button id="qc" onclick="clearQ()" aria-label="נקה" style="display:none;position:absolute;left:6px;top:4px;width:34px;height:34px;border:0;border-radius:17px;background:#d5dae5;color:#33405a;font-size:20px;line-height:1">×</button></div>
 <div class="chips" id="chips"></div>
@@ -80,6 +80,8 @@ function undo(){
   RUN('restore',[c.r,{st:c.st,upd:c.upd,man:c.man,dm:c.dm,notes:c.notes,fn:c.fn,ln:c.ln,p:c.p,p2:c.p2}]).then(function(){toast('בוטל');load(true)}).catch(function(e){toast('הביטול נכשל: '+(e&&e.message||e))});
 }
 function digits(p){return String(p||'').replace(/[^0-9]/g,'')}
+function focusP(){var e=$('p1');if(e){e.scrollIntoView();e.focus()}}
+function okph(p){var d=digits(p||'');return d.length>=9?p:''}
 function wa(p){var d=digits(p);if(d.charAt(0)==='0')d='972'+d.slice(1);return 'https://wa.me/'+d}
 function cls(ts){return ts==='באיחור'?'late':ts==='להיום'?'today':ts==='בזמן'?'ok':''}
 var VER='web',LAST=0;
@@ -159,7 +161,7 @@ function kv(a,b){return b?'<div class="kv"><span>'+a+'</span><span>'+esc(b)+'</s
 function showCard(c){
   CUR=c;SEL=c.st;
   var h='<div class="hd"><button onclick="closeCard()">חזרה</button><b>'+esc(c.n||c.p)+'</b><span></span></div>';
-  h+='<div class="act"><a class="call" href="tel:'+digits(c.p)+'">התקשר</a><a class="wa" href="'+wa(c.p)+'" target="_blank">וואטסאפ</a>'+(c.p2?'<a class="call2" href="tel:'+digits(c.p2)+'">מספר שני<br><small>'+esc(c.p2)+'</small></a>':'')+'</div>';
+  h+='<div class="act">'+(okph(c.p)?'<a class="call" href="tel:'+digits(c.p)+'">התקשר</a><a class="wa" href="'+wa(c.p)+'" target="_blank">וואטסאפ</a>':'<a class="call2" style="background:#c0392b" onclick="focusP()">אין טלפון - הוסף למטה</a>')+(c.p2?'<a class="call2" href="tel:'+digits(c.p2)+'">מספר שני<br><small>'+esc(c.p2)+'</small></a>':'')+'</div>';
   h+='<div class="box"><h3>אחרי שיחה</h3><div class="stg"><button onclick="quick(0)">ענה</button><button onclick="quick(1)">לא ענה</button><button onclick="quick(2)">מעבר בוצע</button></div></div>';
   h+='<div class="box"><h3>דחייה (לטיפול עתידי)</h3><div class="stg"><button onclick="snooze(1)">מחר</button><button onclick="snooze(3)">בעוד 3 ימים</button><button onclick="snooze(7)">בעוד שבוע</button></div></div>';
   h+='<div class="box"><h3>מצב</h3>'+kv('שלב',c.st)+kv('נציגה',c.rep||'לא צוין')+kv('הגיע אליך',c.arr||'לא צוין')+kv('בעל הכדור',c.ball)+kv('עודכן',c.upd)+kv('ימים בשלב',c.d)+kv('מצב זמן',c.ts)+kv('יעד טיפול',c.due)+'</div>';
@@ -167,7 +169,7 @@ function showCard(c){
   h+='<div class="box"><h3>בקשה / רקע</h3><div class="big">'+esc(c.req||'אין')+'</div></div>';
   h+='<div class="box"><h3>פרטים</h3>'+kv('ת.ז.',c.id)+kv('עיר / סניף',c.city)+kv('קופה נוכחית',c.kupa)+kv('נפשות',c.ppl)+'</div>';
   if(c.notes)h+='<div class="box"><h3>היסטוריית הערות</h3><div class="big">'+esc(c.notes)+'</div></div>';
-  h+='<div class="box"><h3>שם וטלפון</h3><div style="display:flex;gap:8px"><input class="t" id="fn" placeholder="שם פרטי" value="'+esc(c.fn)+'"><input class="t" id="ln" placeholder="שם משפחה" value="'+esc(c.ln)+'"></div><div style="display:flex;gap:8px;margin-top:8px"><input class="t" id="p1" type="tel" placeholder="טלפון" value="'+esc(c.p)+'"><input class="t" id="p2" type="tel" placeholder="טלפון נוסף" value="'+esc(c.p2)+'"></div></div>';
+  h+='<div class="box"><h3>שם וטלפון</h3><div style="display:flex;gap:8px"><input class="t" id="fn" placeholder="שם פרטי" value="'+esc(c.fn)+'"><input class="t" id="ln" placeholder="שם משפחה" value="'+esc(c.ln)+'"></div><div style="display:flex;gap:8px;margin-top:8px"><input class="t" id="p1" type="tel" placeholder="טלפון" value="'+esc(okph(c.p))+'"><input class="t" id="p2" type="tel" placeholder="טלפון נוסף" value="'+esc(c.p2)+'"></div></div>';
   h+='<div class="box"><h3>שינוי שלב</h3><div class="stg" id="stg">'+STAGES.map(function(s,i){return '<button data-i="'+i+'" class="'+(s===c.st?'on':'')+'" onclick="pick('+i+')">'+esc(s)+'</button>'}).join('')+'</div></div>';
   var iso='';var mm=String(c.dm||'').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(mm)iso=mm[3]+'-'+mm[2]+'-'+mm[1];
   h+='<div class="box" id="ddb" style="'+(c.st===FUT?'':'display:none')+'"><h3>לחזור לליד בתאריך</h3><input class="t" type="date" id="dd" value="'+iso+'"></div>';
@@ -187,6 +189,22 @@ function sendRep(){
   if(tk&&$('man')&&!$('man').value)$('man').value=tk+(td?' ('+td.split('-').reverse().join('.')+')':'');
   window.open('https://wa.me/?text='+encodeURIComponent(L.join(String.fromCharCode(10))),'_blank');
 }
+function showSummary(){
+  var ARCH='ארכיון – מההיסטוריה',DONE='בוצע מעבר';
+  var open=DATA.filter(function(x){return x.st!==DONE&&x.st!==ARCH&&x.st!==FUT&&x.st.indexOf('נסגר')!==0});
+  var by={};DATA.forEach(function(x){var r=x.rep||'לא צוין';var o=by[r]||(by[r]={n:r,all:0,nw:0,op:0,dn:0,lt:0});o.all++;if(x.st===DONE)o.dn++;else if(x.st!==ARCH&&x.st!==FUT&&x.st.indexOf('נסגר')!==0){o.op++;if(x.st.indexOf('חדש')===0)o.nw++;if(x.ts==='באיחור')o.lt++}});
+  var rs=Object.keys(by).map(function(k){return by[k]}).sort(function(a,b){return b.op-a.op});
+  var old=open.filter(function(x){return (+x.d||0)>=7}).sort(function(a,b){return (+b.d||0)-(+a.d||0)});
+  var h='<div class="hd"><button onclick="closeCard()">חזרה</button><b>סיכום</b><span></span></div>';
+  h+='<div class="box"><h3>מי לא טופל זמן רב ('+old.length+' לידים פתוחים 7 ימים ויותר בשלב)</h3>';
+  if(!old.length)h+='<div class="big">אין</div>';
+  old.slice(0,25).forEach(function(x){h+='<div class="it" onclick="openCard('+x.r+')"><div class="row1"><span class="nm">'+esc(x.n||x.p)+'</span><span class="bd">'+esc(x.d)+' ימים</span></div><div class="sub">'+esc(x.rep)+' · '+esc(x.st)+'</div></div>'});
+  if(old.length>25)h+='<div class="empty">ועוד '+(old.length-25)+'</div>';
+  h+='</div><div class="box"><h3>לפי נציגה</h3>';
+  rs.forEach(function(o){h+='<div class="kv"><span>'+esc(o.n)+'</span><span>פתוחים '+o.op+' · חדשים '+o.nw+' · באיחור '+o.lt+' · בוצע '+o.dn+'</span></div>'});
+  h+='</div>';
+  CUR=null;$('card').style.display='block';document.body.style.overflow='hidden';$('card').innerHTML=h;$('card').scrollTop=0;
+}
 function qx(){$('qc').style.display=$('q').value?'block':'none'}
 function clearQ(){$('q').value='';qx();render();$('q').focus()}
 function pick(i){SEL=STAGES[i];var db=$('ddb');if(db)db.style.display=(SEL===FUT?'block':'none');var b=document.querySelectorAll('#stg button');for(var j=0;j<b.length;j++)b[j].className=(j===i?'on':'')}
@@ -199,11 +217,11 @@ function doSave(st,note,dd,man,fn,ln,p1,p2){
   }).catch(function(e){if(b){b.disabled=false;b.textContent='שמור'}toast('לא נשמר: '+(e&&e.message||e))});
 }
 function save(){doSave(SEL,$('note').value,SEL===FUT?($('dd')?$('dd').value:''):'',$('man').value,$('fn').value,$('ln').value,$('p1').value,$('p2').value)}
-function quick(i){doSave(QK[i][0],QK[i][1],'',CUR.man,CUR.fn,CUR.ln,CUR.p,CUR.p2)}
+function quick(i){doSave(QK[i][0],QK[i][1],'',CUR.man,CUR.fn,CUR.ln,okph(CUR.p),CUR.p2)}
 function snooze(n){
   var d=new Date();d.setDate(d.getDate()+n);
   var iso=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
-  doSave(FUT,'נדחה ל-'+('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2),iso,CUR.man,CUR.fn,CUR.ln,CUR.p,CUR.p2);
+  doSave(FUT,'נדחה ל-'+('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2),iso,CUR.man,CUR.fn,CUR.ln,okph(CUR.p),CUR.p2);
 }
 function initKey(){
   var h=location.hash||'',m=h.match(/k=([A-Za-z0-9]+)/);
