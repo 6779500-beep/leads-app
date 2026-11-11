@@ -187,7 +187,7 @@ function sendRep(){
   if(tk){var dd=td?td.split('-').reverse().join('.'):'';L.push('משימה: '+tk+(dd?' עד '+dd:''))}
   L.push('וואטסאפ ללקוח: '+wa(c.p));
   if(tk&&$('man')&&!$('man').value)$('man').value=tk+(td?' ('+td.split('-').reverse().join('.')+')':'');
-  window.open('https://wa.me/?text='+encodeURIComponent(L.join(String.fromCharCode(10))),'_blank');
+  var rd=digits(c.rph||'');if(rd.charAt(0)==='0')rd='972'+rd.slice(1);window.open('https://wa.me/'+rd+'?text='+encodeURIComponent(L.join(String.fromCharCode(10))),'_blank');
 }
 function showSummary(){
   var ARCH='ארכיון – מההיסטוריה',DONE='בוצע מעבר';
