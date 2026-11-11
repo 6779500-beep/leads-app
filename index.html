@@ -62,7 +62,7 @@ textarea,input.t{width:100%;padding:10px;border:1px solid #c8cfdd;border-radius:
 <div id="kb"><div><h2>כניסה ראשונה</h2><p>הדבק את מפתח הגישה (פעם אחת בלבד, הוא נשמר בטלפון הזה).</p><input id="kin" type="password" autocomplete="off" placeholder="מפתח גישה"><button onclick="saveKey()">כניסה</button></div></div>
 <script>
 var FUT='לטיפול עתידי';
-var FN={list:'appList',card:'appCard',save:'appSave',add:'appAdd',restore:'appRestore'};
+var FN={list:'appList',card:'appCard',save:'appSave',add:'appAdd',restore:'appRestore',sugdone:'appSugDone'};
 function RUN(a,args){return api(a,args)}
 var PREV=null,UNDO_T=null;
 var K='',DATA=[],STAGES=[],FIL='all',CUR=null,SEL='';
@@ -162,6 +162,7 @@ function showCard(c){
   CUR=c;SEL=c.st;
   var h='<div class="hd"><button onclick="closeCard()">חזרה</button><b>'+esc(c.n||c.p)+'</b><span></span></div>';
   h+='<div class="act">'+(okph(c.p)?'<a class="call" href="tel:'+digits(c.p)+'">התקשר</a><a class="wa" href="'+wa(c.p)+'" target="_blank">וואטסאפ</a>':'<a class="call2" style="background:#c0392b" onclick="focusP()">אין טלפון - הוסף למטה</a>')+(c.p2?'<a class="call2" href="tel:'+digits(c.p2)+'">מספר שני<br><small>'+esc(c.p2)+'</small></a>':'')+'</div>';
+  if(c.sug)h+='<div class="box" style="border:2px solid #e67e22"><h3>הצעה מהסריקה</h3><div class="big">לשנות שלב ל: '+esc(c.sug.st)+'\n'+esc(c.sug.why)+' ('+esc(c.sug.d)+')</div><div class="stg"><button onclick="sugOk()">אשר שינוי שלב</button><button onclick="sugNo()">דחה</button></div></div>';
   h+='<div class="box"><h3>אחרי שיחה</h3><div class="stg"><button onclick="quick(0)">ענה</button><button onclick="quick(1)">לא ענה</button><button onclick="quick(2)">מעבר בוצע</button></div></div>';
   h+='<div class="box"><h3>דחייה (לטיפול עתידי)</h3><div class="stg"><button onclick="snooze(1)">מחר</button><button onclick="snooze(3)">בעוד 3 ימים</button><button onclick="snooze(7)">בעוד שבוע</button></div></div>';
   h+='<div class="box"><h3>מצב</h3>'+kv('שלב',c.st)+kv('נציגה',c.rep||'לא צוין')+kv('הגיע אליך',c.arr||'לא צוין')+kv('בעל הכדור',c.ball)+kv('עודכן',c.upd)+kv('ימים בשלב',c.d)+kv('מצב זמן',c.ts)+kv('יעד טיפול',c.due)+'</div>';
@@ -205,6 +206,8 @@ function showSummary(){
   h+='</div>';
   CUR=null;$('card').style.display='block';document.body.style.overflow='hidden';$('card').innerHTML=h;$('card').scrollTop=0;
 }
+function sugOk(){var c=CUR;if(!c||!c.sug)return;var sg=c.sug;doSave(sg.st,'שינוי שלב אושר (הצעה מהסריקה: '+sg.why+')','',c.man,c.fn,c.ln,okph(c.p),c.p2);RUN('sugdone',[sg.r,'אושר']).catch(function(){})}
+function sugNo(){var c=CUR;if(!c||!c.sug)return;RUN('sugdone',[c.sug.r,'נדחה']).then(function(){toast('ההצעה נדחתה');openCard(c.r)}).catch(function(e){toast('שגיאה: '+(e&&e.message||e))})}
 function qx(){$('qc').style.display=$('q').value?'block':'none'}
 function clearQ(){$('q').value='';qx();render();$('q').focus()}
 function pick(i){SEL=STAGES[i];var db=$('ddb');if(db)db.style.display=(SEL===FUT?'block':'none');var b=document.querySelectorAll('#stg button');for(var j=0;j<b.length;j++)b[j].className=(j===i?'on':'')}
